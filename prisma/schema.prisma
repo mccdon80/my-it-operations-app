@@ -331,32 +331,122 @@ model ActionItem {
   @@map("action_items")
 }
 
-// Training Plan Management
 model TrainingPlan {
-  id            String    @id @default(cuid())
-  trainingName  String    @map("training_name")
-  trainingType  String    @map("training_type")
-  scheduleDate  DateTime? @map("schedule_date")
-  cost          Decimal?  @db.Decimal(10,2)
-  maxAttendees  Int?      @map("max_attendees")
-  remarks       String?
-  status        String    @default("Planned")
-  createdBy     String?   @map("created_by")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  
+  id           String    @id @default(cuid())
+  trainingName String    @map("training_name")
+  trainingType String    @map("training_type")
+  scheduleDate DateTime? @map("schedule_date")
+  cost         Decimal?  @db.Decimal(10, 2)
+  maxAttendees Int?      @map("max_attendees")
+  remarks      String?
+  status       String    @default("Planned")
+  createdBy    String?   @map("created_by")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
   @@map("training_plans")
 }
 
-// Team Attendance Tracking  
 model TeamAttendance {
   id             String    @id @default(cuid())
   userId         String    @map("user_id")
   attendanceDate DateTime  @map("attendance_date") @db.Date
   checkInTime    DateTime? @map("check_in_time")
   checkOutTime   DateTime? @map("check_out_time")
-  status         String?   // Present, Absent, Half Day, Remote
+  status         String?
   remarks        String?
   createdAt      DateTime  @default(now()) @map("created_at")
-  
+
   @@map("team_attendance")
+}
+
+// IT Asset Handover Management Models
+// Add these to the end of your existing schema.prisma
+
+model AssetHandover {
+  id                  String                @id @default(cuid())
+  handoverNumber      String                @unique @map("handover_number")
+  employeeName        String                @map("employee_name")
+  employeeEmail       String                @map("employee_email")
+  employeeId          String?               @map("employee_id")
+  department          String
+  position            String?
+  manager             String?
+  managerEmail        String?               @map("manager_email")
+  handoverDate        DateTime              @map("handover_date") @db.Date
+  handoverType        String                @map("handover_type") // "New Joiner", "Transfer", "Replacement"
+  purpose             String?               // Reason for handover
+  notes               String?               @db.Text
+  status              String                @default("Draft") // Draft, Pending Approval, Approved, Rejected, Completed
+  submittedBy         String                @map("submitted_by")
+  submittedAt         DateTime?             @map("submitted_at")
+  approvedBy          String?               @map("approved_by")
+  approvedAt          DateTime?             @map("approved_at")
+  rejectionReason     String?               @map("rejection_reason") @db.Text
+  completedAt         DateTime?             @map("completed_at")
+  createdAt           DateTime              @default(now()) @map("created_at")
+  updatedAt           DateTime              @updatedAt @map("updated_at")
+  
+  // Relationships
+  assets              AssetHandoverItem[]
+  approvals           HandoverApproval[]
+  
+  @@map("asset_handovers")
+}
+
+model AssetHandoverItem {
+  id              String        @id @default(cuid())
+  handoverId      String        @map("handover_id")
+  assetId         String        @map("asset_id")
+  assetTag        String        @map("asset_tag")
+  assetType       String        @map("asset_type")
+  brand           String?
+  model           String?
+  serialNumber    String?       @map("serial_number")
+  condition       String        @default("Good") // Excellent, Good, Fair, Poor
+  accessories     String?       @db.Text // Charger, Mouse, Keyboard, etc.
+  notes           String?       @db.Text
+  handoverStatus  String        @default("Pending") @map("handover_status") // Pending, Handed Over, Returned
+  handedOverAt    DateTime?     @map("handed_over_at")
+  returnedAt      DateTime?     @map("returned_at")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  
+  // Relationships
+  handover        AssetHandover @relation(fields: [handoverId], references: [id], onDelete: Cascade)
+  
+  @@map("asset_handover_items")
+}
+
+model HandoverApproval {
+  id              String        @id @default(cuid())
+  handoverId      String        @map("handover_id")
+  approverEmail   String        @map("approver_email")
+  approverName    String        @map("approver_name")
+  approverRole    String        @map("approver_role") // Manager, IT Admin, HR, etc.
+  approvalLevel   Int           @map("approval_level") // 1, 2, 3 for multi-level approval
+  status          String        @default("Pending") // Pending, Approved, Rejected
+  approvedAt      DateTime?     @map("approved_at")
+  comments        String?       @db.Text
+  emailSentAt     DateTime?     @map("email_sent_at")
+  remindersSent   Int           @default(0) @map("reminders_sent")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  
+  // Relationships
+  handover        AssetHandover @relation(fields: [handoverId], references: [id], onDelete: Cascade)
+  
+  @@map("handover_approvals")
+}
+
+model HandoverTemplate {
+  id              String        @id @default(cuid())
+  templateName    String        @map("template_name")
+  department      String?       // For department-specific templates
+  position        String?       // For position-specific templates
+  assetTypes      String        @map("asset_types") @db.Text // JSON array of default asset types
+  approvers       String        @map("approvers") @db.Text // JSON array of default approver emails
+  isActive        Boolean       @default(true) @map("is_active")
+  createdBy       String        @map("created_by")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  
+  @@map("handover_templates")
 }

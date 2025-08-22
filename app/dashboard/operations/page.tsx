@@ -29,7 +29,7 @@ export default function OperationsPage() {
       icon: '🏖️',
       title: 'Leave Applications',
       description: 'Submit and approve leave requests with automated workflows',
-      href: '/operations/leave-applications',
+      href: './operations/leave-applications',
       color: '#e3f2fd',
       borderColor: '#2196f3'
     },
@@ -37,7 +37,7 @@ export default function OperationsPage() {
       icon: '📝',
       title: 'Meeting Minutes',
       description: 'Record meetings, track attendees, and manage action items',
-      href: '/operations/meetings',
+      href: './operations/meetings',
       color: '#f3e5f5',
       borderColor: '#9c27b0'
     },
@@ -45,7 +45,7 @@ export default function OperationsPage() {
       icon: '🎓',
       title: 'Training Management',
       description: 'Plan training sessions and track attendance',
-      href: '/operations/training',
+      href: './operations/training',
       color: '#e8f5e8',
       borderColor: '#4caf50'
     },
@@ -53,7 +53,7 @@ export default function OperationsPage() {
       icon: '👥',
       title: 'Team Attendance',
       description: 'Monitor daily team attendance and presence',
-      href: '/operations/attendance',
+      href: './operations/attendance',
       color: '#fff3e0',
       borderColor: '#ff9800'
     },
@@ -61,7 +61,7 @@ export default function OperationsPage() {
       icon: '🔄',
       title: 'Handover Documentation',
       description: 'Manage knowledge transfer and handover processes',
-      href: '/operations/handovers',
+      href: './operations/handover',
       color: '#fce4ec',
       borderColor: '#e91e63'
     },
@@ -69,7 +69,7 @@ export default function OperationsPage() {
       icon: '👋',
       title: 'Joiners & Leavers',
       description: 'Process new joiners and manage leaver procedures',
-      href: '/operations/joiners-leavers',
+      href: './operations/joiners-leavers',
       color: '#e1f5fe',
       borderColor: '#00bcd4'
     }
