@@ -234,7 +234,7 @@ export default function OperationsPage() {
             🎓 Plan Training
           </button>
           <button 
-            onClick={() => window.location.href = '/operations/attendance/today'}
+            onClick={() => window.location.href = '/operations/training'}
             style={{
               backgroundColor: '#dc3545',
               color: 'white',

@@ -1,3 +1,6 @@
+// Create this file: lib/prisma.ts
+// This centralizes the Prisma client and avoids import issues
+
 import { PrismaClient } from '@prisma/client'
 
 const globalForPrisma = globalThis as unknown as {
