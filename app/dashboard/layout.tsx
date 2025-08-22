@@ -159,8 +159,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     <ThemeContext.Provider value={{ darkMode, toggleTheme }}>
       {/* Outer Container with Background */}
       <div style={{
-        minHeight: '100vh',
-        backgroundColor: darkMode ? '#0f1419' : '#f1f5f9',
+        maxHeight: '90vh',
+        backgroundColor: darkMode ? 'white' : 'white',
         padding: '24px',
         display: 'flex',
         justifyContent: 'center',
