@@ -1,0 +1,374 @@
+// Simplified Working Database Schema - SQL Server Compatible
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+// Users & Authentication - Simplified
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String
+  role        String   // Admin, Manager, Employee, Contractor
+  department  String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+// Campus Structure
+model Campus {
+  id          String     @id @default(cuid())
+  campusName  String     @map("campus_name")  // "CENTRAL"
+  campusCode  String?    @unique @map("campus_code")
+  address     String?
+  totalArea   Decimal?   @map("total_area") @db.Decimal(10,2)
+  description String?
+  createdAt   DateTime   @default(now()) @map("created_at")
+  
+  buildings   Building[]
+
+  @@map("campuses")
+}
+
+// Buildings
+model Building {
+  id           String   @id @default(cuid())
+  campusId     String   @map("campus_id")
+  buildingName String   @map("building_name")  // "ADM"
+  buildingCode String   @map("building_code")  // "ADM"
+  totalFloors  Int?     @map("total_floors")
+  totalArea    Decimal? @map("total_area") @db.Decimal(10,2)
+  description  String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  campus Campus  @relation(fields: [campusId], references: [id])
+  floors Floor[]
+
+  @@map("buildings")
+}
+
+// Floors
+model Floor {
+  id         String   @id @default(cuid())
+  buildingId String   @map("building_id")
+  floorName  String   @map("floor_name")    // "GF", "01", "02", etc.
+  floorCode  String   @map("floor_code")    // "00", "01", "02", etc.
+  area       Decimal? @db.Decimal(10,2)
+  roomCount  Int      @default(0) @map("room_count")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  building Building @relation(fields: [buildingId], references: [id])
+  rooms    Room[]
+
+  @@map("floors")
+}
+
+// Rooms - Matching your Excel structure exactly
+model Room {
+  id               String   @id @default(cuid())
+  floorId          String   @map("floor_id")
+  
+  // Basic Room Information (matching your Excel columns exactly)
+  roomNumber       String   @unique @map("room_number")        // "ADM-00-006"
+  campusName       String   @map("campus_name")        // "CENTRAL"
+  buildingName     String   @map("building_name")      // "ADM"
+  floorName        String   @map("floor_name")         // "GF"
+  
+  // Ownership and Administrative
+  ownership        String?                             // "CLIENT"
+  owner            String?                             // "AL MAQSED"
+  customerNote     String?  @map("customer_note")      // Customer Note
+  otherRemarks     String?  @map("other_remarks")      // Other Remarks
+  
+  // Physical Characteristics
+  roomSizeSqm      Decimal? @map("room_size_sqm") @db.Decimal(10,2)      // Room Size (Sqm)
+  seatingCapacity  Int?     @map("seating_capacity")   // Seating Capacity
+  roomHeight       String?  @map("room_height")        // Room Height (3000)
+  paintColorCode   String?  @map("paint_color_code")   // Paint Color Code
+  
+  // Room Classification
+  roomCategory     String?  @map("room_category")      // "VIDEO CONFERENCING", "ACTIVITY ROOM", etc.
+  roomType         String?  @map("room_type")          // "VIDEO CONFERENCE ROOM (M4, CON & ADM)"
+  
+  // Technical Information
+  elvIdfBdfRoom    String?  @map("elv_idf_bdf_room")   // "ELV/IDF/BDF Room"
+  distanceMeters   Decimal? @map("distance_meters") @db.Decimal(10,2)    // Distance (Meters)
+  remarks          String?                             // Remarks
+  
+  // System Fields
+  currentStatus    String   @default("Active") @map("current_status")
+  lastUpdated      DateTime @default(now()) @map("last_updated")
+  createdAt        DateTime @default(now()) @map("created_at")
+  createdBy        String?  @map("created_by")
+  updatedBy        String?  @map("updated_by")
+
+  // Relations - Simplified
+  floor            Floor                    @relation(fields: [floorId], references: [id])
+
+  @@map("rooms")
+}
+
+// IT Assets & Equipment - Simplified
+model ItAsset {
+  id              String    @id @default(cuid())
+  assetTag        String    @unique @map("asset_tag")
+  assetType       String    @map("asset_type")
+  brand           String?
+  model           String?
+  serialNumber    String?   @map("serial_number")
+  status          String    @default("Available") // Available, Assigned, Maintenance, Retired
+  assignedTo      String?   @map("assigned_to")
+  assignedDate    DateTime? @map("assigned_date")
+  location        String?
+  purchaseDate    DateTime? @map("purchase_date")
+  warrantyExpiry  DateTime? @map("warranty_expiry")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  @@map("it_assets")
+}
+
+// AMC System Categories
+model AmcSystemCategory {
+  id           String      @id @default(cuid())
+  categoryName String      @map("category_name")
+  categoryCode String?     @unique @map("category_code")
+  description  String?
+  createdAt    DateTime    @default(now()) @map("created_at")
+
+  systems AmcSystem[]
+
+  @@map("amc_system_categories")
+}
+
+// AMC Systems
+model AmcSystem {
+  id               String            @id @default(cuid())
+  systemName       String            @map("system_name")
+  systemCode       String?           @unique @map("system_code")
+  categoryId       String?           @map("category_id")
+  location         String?
+  description      String?
+  installationDate DateTime?         @map("installation_date") @db.Date
+  warrantyExpiry   DateTime?         @map("warranty_expiry") @db.Date
+  status           String            @default("Active") // Active, Inactive, Under Maintenance
+  createdAt        DateTime          @default(now()) @map("created_at")
+
+  category  AmcSystemCategory? @relation(fields: [categoryId], references: [id])
+  contracts AmcContract[]
+
+  @@map("amc_systems")
+}
+
+// AMC Contracts
+model AmcContract {
+  id                   String    @id @default(cuid())
+  contractNumber       String    @unique @map("contract_number")
+  systemId             String?   @map("system_id")
+  contractorId         String?   @map("contractor_id")
+  contractType         String    @map("contract_type") // Comprehensive, Non-comprehensive, etc.
+  contractValue        Decimal   @map("contract_value") @db.Decimal(15,2)
+  startDate            DateTime  @map("start_date") @db.Date
+  endDate              DateTime  @map("end_date") @db.Date
+  slaTerms             String?   @map("sla_terms")
+  responseTimeHours    Int?      @map("response_time_hours")
+  resolutionTimeHours  Int?      @map("resolution_time_hours")
+  penaltyClause        String?   @map("penalty_clause")
+  status               String    @default("Active") // Active, Expired, Renewed, Cancelled
+  autoRenewal          Boolean   @default(false) @map("auto_renewal")
+  renewalNoticeDays    Int       @default(60) @map("renewal_notice_days")
+  createdBy            String?   @map("created_by")
+  createdAt            DateTime  @default(now()) @map("created_at")
+
+  system     AmcSystem?  @relation(fields: [systemId], references: [id])
+  contractor Contractor? @relation(fields: [contractorId], references: [id])
+
+  @@map("amc_contracts")
+}
+
+// Contractors
+model Contractor {
+  id          String   @id @default(cuid())
+  companyName String   @map("company_name")
+  contactName String   @map("contact_name")
+  email       String
+  phone       String?
+  address     String?
+  status      String   @default("Active") // Active, Inactive
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  amcContracts AmcContract[]
+
+  @@map("contractors")
+}
+
+// Projects - Simplified
+model Project {
+  id               String    @id @default(cuid())
+  projectName      String    @map("project_name")
+  projectType      String    @map("project_type") // Lifecycle, Adhoc Variation
+  systemType       String?   @map("system_type")
+  categoryType     String?   @map("category_type")
+  description      String?
+  startDate        DateTime? @map("start_date") @db.Date
+  endDate          DateTime? @map("end_date") @db.Date
+  status           String    @default("Planning") // Planning, Active, On Hold, Completed, Cancelled
+  projectManagerId String?   @map("project_manager_id")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  @@map("projects")
+}
+
+// Leave Applications - Simplified
+model LeaveApplication {
+  id           String    @id @default(cuid())
+  employeeId   String    @map("employee_id")
+  leaveType    String    @map("leave_type") // Sick, Vacation, Personal, Emergency
+  startDate    DateTime  @map("start_date") @db.Date
+  endDate      DateTime  @map("end_date") @db.Date
+  daysCount    Int       @map("days_count")
+  reason       String?
+  status       String    @default("Pending") // Pending, Approved, Rejected
+  approvedBy   String?   @map("approved_by")
+  approvalDate DateTime? @map("approval_date")
+  comments     String?
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  @@map("leave_applications")
+}
+
+// Room Projects - Simplified
+model RoomProject {
+  id              String    @id @default(cuid())
+  roomId          String    @map("room_id")
+  projectId       String?   @map("project_id")
+  projectType     String    @map("project_type") // IT, AV, ELV, Services, Renovation
+  description     String?
+  budgetAllocated Decimal?  @map("budget_allocated") @db.Decimal(15,2)
+  actualCost      Decimal?  @map("actual_cost") @db.Decimal(15,2)
+  startDate       DateTime? @map("start_date") @db.Date
+  completionDate  DateTime? @map("completion_date") @db.Date
+  contractorId    String?   @map("contractor_id")
+  projectStatus   String    @default("Planning") @map("project_status") // Planning, Active, Completed, On Hold
+  createdBy       String?   @map("created_by")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  @@map("room_projects")
+}
+
+// Room Variation Requests - Simplified
+model RoomVariationRequest {
+  id                    String    @id @default(cuid())
+  roomId                String    @map("room_id")
+  requestType           String    @map("request_type") // System Change, Equipment Addition, Layout Modification
+  description           String
+  justification         String?
+  estimatedCost         Decimal?  @map("estimated_cost") @db.Decimal(15,2)
+  requestedBy           String    @map("requested_by") // University department/person name
+  requestDate           DateTime  @map("request_date") @db.Date
+  priority              String    @default("Medium") // Low, Medium, High, Urgent
+  status                String    @default("Submitted") @map("status") // Submitted, Under Review, Approved, In Progress, Completed, Rejected
+  assignedTo            String?   @map("assigned_to")
+  estimatedCompletionDate DateTime? @map("estimated_completion_date") @db.Date
+  actualCompletionDate  DateTime? @map("actual_completion_date") @db.Date
+  actualCost            Decimal?  @map("actual_cost") @db.Decimal(15,2)
+  createdAt             DateTime  @default(now()) @map("created_at")
+
+  @@map("room_variation_requests")
+}
+
+// PPM Schedules - Simplified
+model RoomPpmSchedule {
+  id                 String    @id @default(cuid())
+  roomId             String    @map("room_id")
+  ppmType            String    @map("ppm_type") // Cleaning, Equipment Check, Safety Inspection
+  frequency          String    // Monthly, Quarterly, Annually
+  description        String?
+  assignedTo         String?   @map("assigned_to") // Internal team or contractor
+  contractorId       String?   @map("contractor_id")
+  lastPerformedDate  DateTime? @map("last_performed_date") @db.Date
+  nextDueDate        DateTime? @map("next_due_date") @db.Date
+  status             String    @default("Scheduled") // Scheduled, Overdue, Completed, Skipped
+  createdAt          DateTime  @default(now()) @map("created_at")
+
+  @@map("room_ppm_schedules")
+}
+
+// System tables - Simplified
+model Notification {
+  id                  String   @id @default(cuid())
+  userId              String   @map("user_id")
+  title               String
+  message             String
+  type                String   // info, warning, error, success
+  relatedEntityType   String?  @map("related_entity_type")
+  relatedEntityId     String?  @map("related_entity_id")
+  isRead              Boolean  @default(false) @map("is_read")
+  sentViaEmail        Boolean  @default(false) @map("sent_via_email")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  @@map("notifications")
+}
+
+model SystemLog {
+  id         String   @id @default(cuid())
+  userId     String?  @map("user_id")
+  action     String
+  entityType String?  @map("entity_type")
+  entityId   String?  @map("entity_id")
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  details    String?
+  timestamp  DateTime @default(now())
+
+  @@map("system_logs")
+}
+
+// Meeting Minutes Module
+model Meeting {
+  id             String    @id @default(cuid())
+  title          String
+  meetingDate    DateTime  @map("meeting_date")
+  location       String?
+  organizerId    String    @map("organizer_id")
+  minutesContent String?   @map("minutes_content") @db.Text
+  status         String    @default("Draft") // Draft, Final
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  attendees   MeetingAttendee[]
+  actionItems ActionItem[]
+
+  @@map("meetings")
+}
+
+model MeetingAttendee {
+  id               String @id @default(cuid())
+  meetingId        String @map("meeting_id")
+  userId           String @map("user_id")
+  attendanceStatus String @map("attendance_status") // Present, Absent, Optional
+
+  meeting Meeting @relation(fields: [meetingId], references: [id])
+
+  @@map("meeting_attendees")
+}
+
+model ActionItem {
+  id          String    @id @default(cuid())
+  meetingId   String    @map("meeting_id")
+  description String    @db.Text
+  assignedTo  String?   @map("assigned_to")
+  dueDate     DateTime? @map("due_date") @db.Date
+  status      String    @default("Open") // Open, In Progress, Completed, Overdue
+  priority    String    @default("Medium") // Low, Medium, High, Critical
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  meeting Meeting @relation(fields: [meetingId], references: [id])
+
+  @@map("action_items")
+}
