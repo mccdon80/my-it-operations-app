@@ -450,3 +450,76 @@ model HandoverTemplate {
   
   @@map("handover_templates")
 }
+
+// ================================
+// JOINER/LEAVER PROCESS MODELS
+// ================================
+// Add ONLY these models to the very END of your existing prisma/schema.prisma file
+// Do NOT modify your existing models
+
+model JoinerLeaverProcess {
+  id                    String    @id @default(cuid())
+  type                  String
+  employeeName          String    @map("employee_name")
+  employeeId            String?   @map("employee_id")
+  department            String
+  position              String?
+  manager               String
+  startDate             DateTime? @map("start_date") @db.Date
+  endDate               DateTime? @map("end_date") @db.Date
+  status                String    @default("Draft")
+  totalItems            Int       @default(0) @map("total_items")
+  completedItems        Int       @default(0) @map("completed_items")
+  progressPercentage    Int       @default(0) @map("progress_percentage")
+  notes                 String?   @db.Text
+  completionNotes       String?   @map("completion_notes") @db.Text
+  createdBy             String?   @map("created_by")
+  updatedBy             String?   @map("updated_by")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+  isDeleted             Boolean   @default(false) @map("is_deleted")
+  
+  checklistItems        JoinerLeaverChecklistItem[]
+  
+  @@index([type])
+  @@index([status])
+  @@index([department])
+  @@index([createdBy])
+  @@index([isDeleted])
+  
+  @@map("joiner_leaver_processes")
+}
+
+model JoinerLeaverChecklistItem {
+  id                    String    @id @default(cuid())
+  processId             String    @map("process_id")
+  title                 String
+  description           String    @db.Text
+  category              String
+  isRequired            Boolean   @default(false) @map("is_required")
+  sortOrder             Int       @default(0) @map("sort_order")
+  documentUrl           String?   @map("document_url")
+  documentName          String?   @map("document_name")
+  completed             Boolean   @default(false)
+  completedAt           DateTime? @map("completed_at")
+  completedBy           String?   @map("completed_by")
+  completedByName       String?   @map("completed_by_name")
+  notes                 String?   @db.Text
+  completionNotes       String?   @map("completion_notes") @db.Text
+  createdBy             String?   @map("created_by")
+  updatedBy             String?   @map("updated_by")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+  isDeleted             Boolean   @default(false) @map("is_deleted")
+  
+  process               JoinerLeaverProcess @relation(fields: [processId], references: [id], onDelete: Cascade)
+  
+  @@index([processId])
+  @@index([category])
+  @@index([completed])
+  @@index([isRequired])
+  @@index([sortOrder])
+  @@index([isDeleted])
+  
+  @@map("joiner_leaver_checklist_items")
+}

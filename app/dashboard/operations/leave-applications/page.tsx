@@ -92,13 +92,13 @@ export default function LeaveApplicationsPage() {
     }
   }
 
-  if (loading) {
+/*   if (loading) {
     return (
       <div style={{ padding: '24px', textAlign: 'center' }}>
         <h1>Loading leave applications...</h1>
       </div>
     )
-  }
+  } */
 
   return (
     <div style={{ padding: '24px', fontFamily: 'Arial, sans-serif', maxWidth: '1200px', margin: '0 auto' }}>
@@ -175,7 +175,7 @@ export default function LeaveApplicationsPage() {
                 value={newLeave.startDate}
                 onChange={(e) => setNewLeave({...newLeave, startDate: e.target.value})}
                 style={{ 
-                  width: '100%', 
+                  width: '95%', 
                   padding: '8px 12px', 
                   border: '1px solid #ddd', 
                   borderRadius: '4px',
@@ -193,7 +193,7 @@ export default function LeaveApplicationsPage() {
                 value={newLeave.endDate}
                 onChange={(e) => setNewLeave({...newLeave, endDate: e.target.value})}
                 style={{ 
-                  width: '100%', 
+                  width: '92%', 
                   padding: '8px 12px', 
                   border: '1px solid #ddd', 
                   borderRadius: '4px',
@@ -213,7 +213,7 @@ export default function LeaveApplicationsPage() {
               placeholder="Reason for leave (optional)"
               rows={3}
               style={{ 
-                width: '100%', 
+                width: '97.5%', 
                 padding: '8px 12px', 
                 border: '1px solid #ddd', 
                 borderRadius: '4px',

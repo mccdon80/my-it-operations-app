@@ -203,8 +203,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <div style={{ fontSize: '24px' }}>🏢</div>
               {sidebarOpen && (
                 <div>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold' }}>IT Operations</div>
-                  <div style={{ fontSize: '12px', color: theme.sidebarTextMuted }}>Management System</div>
+                  <div style={{ fontSize: '18px', fontWeight: 'bold' }}>Helios</div>
+                  <div style={{ fontSize: '12px', color: theme.sidebarTextMuted }}>ITAV & Projects Services</div>
                 </div>
               )}
             </div>

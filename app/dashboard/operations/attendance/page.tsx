@@ -201,20 +201,20 @@ export default function TeamAttendancePage() {
 
   const stats = getAttendanceStats()
 
-  if (loading) {
+/*   if (loading) {
     return (
-      <div style={{ padding: '24px', textAlign: 'center' }}>
+      <div style={{ padding: '24px', textAlign: 'left', fontSize: '10px', fontWeight:'normal'}}>
         <h1>Loading attendance records...</h1>
       </div>
     )
-  }
+  } */
 
   return (
     <div style={{ padding: '24px', fontFamily: 'Arial, sans-serif', maxWidth: '1200px', margin: '0 auto' }}>
       {/* Header */}
       <div style={{ marginBottom: '24px' }}>
         <h1 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '8px' }}>
-          👥 Team Attendance
+          Team Attendance
         </h1>
         <p style={{ color: '#666', fontSize: '16px' }}>
           Track daily attendance, check-in/out times, and work status
@@ -372,7 +372,7 @@ export default function TeamAttendancePage() {
                 value={newAttendance.attendanceDate}
                 onChange={(e) => setNewAttendance(prev => ({ ...prev, attendanceDate: e.target.value }))}
                 style={{
-                  width: '100%',
+                  width: '95%',
                   padding: '10px',
                   border: '1px solid #ced4da',
                   borderRadius: '4px',
@@ -413,7 +413,7 @@ export default function TeamAttendancePage() {
                 value={newAttendance.checkInTime}
                 onChange={(e) => setNewAttendance(prev => ({ ...prev, checkInTime: e.target.value }))}
                 style={{
-                  width: '100%',
+                  width: '95%',
                   padding: '10px',
                   border: '1px solid #ced4da',
                   borderRadius: '4px',
@@ -431,7 +431,7 @@ export default function TeamAttendancePage() {
                 value={newAttendance.checkOutTime}
                 onChange={(e) => setNewAttendance(prev => ({ ...prev, checkOutTime: e.target.value }))}
                 style={{
-                  width: '100%',
+                  width: '93%',
                   padding: '10px',
                   border: '1px solid #ced4da',
                   borderRadius: '4px',
@@ -451,7 +451,7 @@ export default function TeamAttendancePage() {
               placeholder="Optional notes about attendance..."
               rows={2}
               style={{
-                width: '100%',
+                width: '98%',
                 padding: '10px',
                 border: '1px solid #ced4da',
                 borderRadius: '4px',

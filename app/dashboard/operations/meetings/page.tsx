@@ -111,13 +111,13 @@ export default function MeetingsPage() {
     }
   }
 
-  if (loading) {
+/*   if (loading) {
     return (
       <div style={{ padding: '24px', textAlign: 'center' }}>
         <h1>Loading meetings...</h1>
       </div>
     )
-  }
+  } */
 
   return (
     <div style={{ padding: '24px', fontFamily: 'Arial, sans-serif', maxWidth: '1200px', margin: '0 auto' }}>
@@ -174,7 +174,7 @@ export default function MeetingsPage() {
                 onChange={(e) => setNewMeeting({...newMeeting, title: e.target.value})}
                 placeholder="Weekly IT Team Meeting"
                 style={{ 
-                  width: '100%', 
+                  width: '95%', 
                   padding: '8px 12px', 
                   border: '1px solid #ddd', 
                   borderRadius: '4px',
@@ -192,7 +192,7 @@ export default function MeetingsPage() {
                 value={newMeeting.meetingDate}
                 onChange={(e) => setNewMeeting({...newMeeting, meetingDate: e.target.value})}
                 style={{ 
-                  width: '100%', 
+                  width: '95%', 
                   padding: '8px 12px', 
                   border: '1px solid #ddd', 
                   borderRadius: '4px',
@@ -211,7 +211,7 @@ export default function MeetingsPage() {
                 onChange={(e) => setNewMeeting({...newMeeting, location: e.target.value})}
                 placeholder="Conference Room A / Online"
                 style={{ 
-                  width: '100%', 
+                  width: '93%', 
                   padding: '8px 12px', 
                   border: '1px solid #ddd', 
                   borderRadius: '4px',
@@ -231,7 +231,7 @@ export default function MeetingsPage() {
               placeholder="Meeting agenda, discussion points, decisions made..."
               rows={6}
               style={{ 
-                width: '100%', 
+                width: '98%', 
                 padding: '8px 12px', 
                 border: '1px solid #ddd', 
                 borderRadius: '4px',

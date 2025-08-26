@@ -7,10 +7,17 @@ export default function RoomsPage() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedBuilding, setSelectedBuilding] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(20)
 
   useEffect(() => {
     fetchRooms()
   }, [])
+
+  useEffect(() => {
+    // Reset to first page when search/filter changes
+    setCurrentPage(1)
+  }, [searchTerm, selectedBuilding, itemsPerPage])
 
   const fetchRooms = async () => {
     try {
@@ -26,20 +33,67 @@ export default function RoomsPage() {
 
   const filteredRooms = rooms.filter((room: any) => {
     const matchesSearch = room.roomNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         room.roomType?.toLowerCase().includes(searchTerm.toLowerCase())
+                         room.roomType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         room.roomCategory?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         room.buildingName?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesBuilding = !selectedBuilding || room.buildingName === selectedBuilding
     return matchesSearch && matchesBuilding
   })
 
   const buildings = [...new Set(rooms.map((room: any) => room.buildingName))]
 
-  if (loading) {
+  // Pagination calculations
+  const totalItems = filteredRooms.length
+  const totalPages = Math.ceil(totalItems / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedRooms = filteredRooms.slice(startIndex, endIndex)
+
+  // Generate page numbers for pagination display
+  const getPageNumbers = () => {
+    const delta = 2 // Show 2 pages before and after current page
+    const range = []
+    const rangeWithDots = []
+
+    for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
+      range.push(i)
+    }
+
+    if (currentPage - delta > 2) {
+      rangeWithDots.push(1, '...')
+    } else {
+      rangeWithDots.push(1)
+    }
+
+    rangeWithDots.push(...range)
+
+    if (currentPage + delta < totalPages - 1) {
+      rangeWithDots.push('...', totalPages)
+    } else if (totalPages > 1) {
+      rangeWithDots.push(totalPages)
+    }
+
+    return rangeWithDots
+  }
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    // Scroll to top when changing pages
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleItemsPerPageChange = (items: number) => {
+    setItemsPerPage(items)
+    setCurrentPage(1)
+  }
+
+/*   if (loading) {
     return (
       <div style={{ padding: '24px', textAlign: 'center' }}>
         <h1>Loading your 602 rooms...</h1>
       </div>
     )
-  }
+  } */
 
   return (
     <div style={{ padding: '24px', fontFamily: 'Arial, sans-serif' }}>
@@ -53,10 +107,10 @@ export default function RoomsPage() {
       </div>
 
       {/* Search and Filter */}
-      <div style={{ marginBottom: '24px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+      <div style={{ marginBottom: '24px', display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
         <input
           type="text"
-          placeholder="Search rooms..."
+          placeholder="Search rooms, buildings, types..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{ 
@@ -82,6 +136,27 @@ export default function RoomsPage() {
             <option key={building} value={building}>{building}</option>
           ))}
         </select>
+
+        {/* Items per page selector */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <label style={{ fontSize: '14px', color: '#666' }}>Show:</label>
+          <select
+            value={itemsPerPage}
+            onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+            style={{ 
+              padding: '6px 8px', 
+              border: '1px solid #ddd', 
+              borderRadius: '4px',
+              fontSize: '14px'
+            }}
+          >
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+          </select>
+          <label style={{ fontSize: '14px', color: '#666' }}>per page</label>
+        </div>
       </div>
 
       {/* Summary Stats */}
@@ -103,11 +178,32 @@ export default function RoomsPage() {
           <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#059669' }}>{filteredRooms.length}</div>
           <div style={{ color: '#059669' }}>Filtered Results</div>
         </div>
+        <div style={{ backgroundColor: '#fef3c7', padding: '16px', borderRadius: '8px', textAlign: 'center' }}>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#d97706' }}>{totalPages}</div>
+          <div style={{ color: '#d97706' }}>Total Pages</div>
+        </div>
+      </div>
+
+      {/* Pagination Info */}
+      <div style={{ 
+        marginBottom: '16px', 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        fontSize: '14px',
+        color: '#666'
+      }}>
+        <div>
+          Showing {startIndex + 1} to {Math.min(endIndex, totalItems)} of {totalItems} rooms
+        </div>
+        <div>
+          Page {currentPage} of {totalPages}
+        </div>
       </div>
 
       {/* Rooms List */}
-      <div style={{ display: 'grid', gap: '12px' }}>
-        {filteredRooms.slice(0, 20).map((room: any) => (
+      <div style={{ display: 'grid', gap: '12px', marginBottom: '24px' }}>
+        {paginatedRooms.map((room: any) => (
           <div key={room.id} style={{ 
             border: '1px solid #e5e7eb', 
             borderRadius: '8px', 
@@ -142,11 +238,145 @@ export default function RoomsPage() {
         ))}
       </div>
 
-      {filteredRooms.length > 20 && (
-        <div style={{ textAlign: 'center', marginTop: '24px', color: '#6b7280' }}>
-          Showing first 20 of {filteredRooms.length} rooms. Use search/filter to find specific rooms.
+      {/* No Results Message */}
+      {filteredRooms.length === 0 && (
+        <div style={{
+          textAlign: 'center',
+          padding: '40px',
+          backgroundColor: '#f9fafb',
+          borderRadius: '8px',
+          color: '#6b7280'
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
+          <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>No rooms found</h3>
+          <p>Try adjusting your search terms or filters</p>
         </div>
       )}
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '8px',
+          marginTop: '24px',
+          paddingTop: '24px',
+          borderTop: '1px solid #e5e7eb'
+        }}>
+          {/* Previous Button */}
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            style={{
+              padding: '8px 12px',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              backgroundColor: currentPage === 1 ? '#f9fafb' : 'white',
+              color: currentPage === 1 ? '#9ca3af' : '#374151',
+              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            ← Previous
+          </button>
+
+          {/* Page Numbers */}
+          {getPageNumbers().map((page, index) => {
+            if (page === '...') {
+              return (
+                <span key={`dots-${index}`} style={{ padding: '8px 4px', color: '#9ca3af' }}>
+                  ...
+                </span>
+              )
+            }
+
+            const isCurrentPage = page === currentPage
+            return (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page as number)}
+                style={{
+                  padding: '8px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  backgroundColor: isCurrentPage ? '#3b82f6' : 'white',
+                  color: isCurrentPage ? 'white' : '#374151',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: isCurrentPage ? 'bold' : '500',
+                  minWidth: '40px'
+                }}
+              >
+                {page}
+              </button>
+            )
+          })}
+
+          {/* Next Button */}
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            style={{
+              padding: '8px 12px',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              backgroundColor: currentPage === totalPages ? '#f9fafb' : 'white',
+              color: currentPage === totalPages ? '#9ca3af' : '#374151',
+              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            Next →
+          </button>
+        </div>
+      )}
+
+      {/* Quick Jump Controls */}
+      {totalPages > 10 && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '16px',
+          marginTop: '16px',
+          fontSize: '14px'
+        }}>
+          <span style={{ color: '#6b7280' }}>Quick jump to page:</span>
+          <input
+            type="number"
+            min="1"
+            max={totalPages}
+            value={currentPage}
+            onChange={(e) => {
+              const page = parseInt(e.target.value)
+              if (page >= 1 && page <= totalPages) {
+                handlePageChange(page)
+              }
+            }}
+            style={{
+              width: '60px',
+              padding: '6px 8px',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              textAlign: 'center'
+            }}
+          />
+          <span style={{ color: '#6b7280' }}>of {totalPages}</span>
+        </div>
+      )}
+
+      {/* Keyboard Navigation Hint */}
+      <div style={{
+        textAlign: 'center',
+        marginTop: '16px',
+        fontSize: '12px',
+        color: '#9ca3af'
+      }}>
+        💡 Tip: Use the search box to quickly find specific rooms by number, building, or type
+      </div>
     </div>
   )
 }

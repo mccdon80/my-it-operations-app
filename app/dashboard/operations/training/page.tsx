@@ -120,13 +120,13 @@ export default function TrainingPage() {
     }).format(amount)
   }
 
-  if (loading) {
+/*   if (loading) {
     return (
       <div style={{ padding: '24px', textAlign: 'center' }}>
         <h1>Loading training plans...</h1>
       </div>
     )
-  }
+  } */
 
   return (
     <div style={{ padding: '24px', fontFamily: 'Arial, sans-serif', maxWidth: '1200px', margin: '0 auto' }}>
@@ -183,7 +183,7 @@ export default function TrainingPage() {
                 onChange={(e) => setNewTraining(prev => ({ ...prev, trainingName: e.target.value }))}
                 placeholder="e.g., Network Security Fundamentals"
                 style={{
-                  width: '100%',
+                  width: '95%',
                   padding: '10px',
                   border: '1px solid #ced4da',
                   borderRadius: '4px',
@@ -224,7 +224,7 @@ export default function TrainingPage() {
                 value={newTraining.scheduleDate}
                 onChange={(e) => setNewTraining(prev => ({ ...prev, scheduleDate: e.target.value }))}
                 style={{
-                  width: '100%',
+                  width: '95%',
                   padding: '10px',
                   border: '1px solid #ced4da',
                   borderRadius: '4px',
@@ -245,7 +245,7 @@ export default function TrainingPage() {
                 min="0"
                 step="0.01"
                 style={{
-                  width: '100%',
+                  width: '95%',
                   padding: '10px',
                   border: '1px solid #ced4da',
                   borderRadius: '4px',
@@ -265,7 +265,7 @@ export default function TrainingPage() {
                 placeholder="0"
                 min="1"
                 style={{
-                  width: '100%',
+                  width: '93%',
                   padding: '10px',
                   border: '1px solid #ced4da',
                   borderRadius: '4px',
@@ -285,7 +285,7 @@ export default function TrainingPage() {
               placeholder="Additional notes, requirements, or details about the training..."
               rows={3}
               style={{
-                width: '100%',
+                width: '98%',
                 padding: '10px',
                 border: '1px solid #ced4da',
                 borderRadius: '4px',

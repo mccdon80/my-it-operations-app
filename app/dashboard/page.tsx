@@ -169,7 +169,7 @@ export default function DashboardPage() {
             color: theme.textPrimary,
             margin: '0 0 8px 0'
           }}>
-            Welcome to IT Operations Dashboard
+            Welcome to Helios Dashboard
           </h1>
           <p style={{ 
             color: theme.textSecondary, 
